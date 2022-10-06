@@ -5,106 +5,141 @@ const Product = require("../models/ProductModel");
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-exports.get = (req, res, next) => {
-    Product.find({active: true}, '_id title slug description price tags')
+exports.get = async (req, res, next) => 
+{
+    try 
+    {
+        const data = await Product.find({ active: true }, '_id title slug description price tags')
+        res.status(200).send({ data });
+    } 
     
-    .then((data) => {
-        res.status(201).send({
-            data 
-        })
-    }).catch((e) => {
-        res.status(400).send({
-            message: "Falha ao listar os produtos!",
-            error: e
-        })
-    });
+    catch (error) 
+    {
+        res.status(500).send({message: 'Falha ao processar sua requisição'});
+    }
 }
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-exports.getBySlug = (req, res, next) => {
-    Product.findOne({slug: req.params.slug}, '_id title description price tags')
+exports.getBySlug = async (req, res, next) => 
+{
+    try 
+    {
+        const data = await Product.findOne({ slug: req.params.slug }, '_id title description price tags')
+        res.status(201).send(data)
+    } 
     
-    .then((data) => {
-        res.status(201).send(data)
-    }).catch((e) => {
-        res.status(400).send({
-            message: "Falha ao listar o produto!",
-            error: e
-        })
-    });
+    catch (e) 
+    {
+        res.status(400).send({message: "Falha ao listar o produto!",error: e})
+    }
 }
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-exports.getById = (req, res, next) => {
-    Product.findById(req.params.id, '_id title description price tags').then((data) => {
+exports.getById = async (req, res, next) => 
+{
+    try 
+    {
+        const data = await Product.findById(req.params.id, '_id title description price tags')
         res.status(201).send(data)
-    }).catch((e) => {
-        res.status(400).send({
-            message: "Falha ao listar o produto!",
-            error: e
-        })
-    });
-}
-
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-exports.getByTag = (req, res, next) => {
-    Product.find({tags: req.params.tag, active: true}, '_id title description price tags')
+    } 
     
-    .then((data) => {
-        res.status(201).send(data)
-    }).catch((e) => {
-        res.status(400).send({
-            message: "Falha ao listar o produto!",
-            error: e
-        })
-    });
+    catch (e) 
+    {
+        res.status(400).send({message: "Falha ao listar o produto!",error: e})
+    }
+
 }
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-exports.post = (req, res, next) => {
-    let product = new Product();
+exports.getByTag = async (req, res, next) => 
+{
 
-    product.title = req.body.title;
-    product.description = req.body.description;
-    product.slug = req.body.slug;
-    product.price = req.body.price;
-    product.active = req.body.active;
-    product.tags = req.body.tags;
+    try 
+    {
+        const data = await Product.find({ tags: req.params.tag, active: true }, '_id title description price tags')
+        res.status(201).send(data)
+    } 
+    
+    catch (e) 
+    {
+        res.status(400).send({message: "Falha ao listar o produto!",error: e})
+    }
+}
 
-    product.save().then((x) => {
-        res.status(201).send({
-            message: "Produto cadastrado com sucesso!" 
-        })
-    }).catch((e) => {
-        res.status(400).send({
-            message: "Falha ao cadastrar produto!",
-            error: e
-        })
-    });
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+exports.post = async (req, res, next) => 
+{
+
+    try 
+    {
+        let product = new Product();
+
+        product.title = req.body.title;
+        product.description = req.body.description;
+        product.slug = req.body.slug;
+        product.price = req.body.price;
+        product.active = req.body.active;
+        product.tags = req.body.tags;
+
+        await product.save()
+        res.status(201).send({message: "Produto cadastrado com sucesso!"})
+    } 
+    
+    catch (e) 
+    {
+        res.status(400).send({message: "Falha ao cadastrar produto!",error: e})
+    }
 };
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-exports.put = (req, res, next) => {
-    let id = req.params.id;
-    res.status(200).send({ id: id, item: req.body });
+exports.put = async (req, res, next) => 
+{
+
+    try 
+    {
+        await Product.findByIdAndUpdate(req.params.id, {
+            $set: {
+                title: req.body.title,
+                description: req.body.description,
+                price: req.body.price,
+                slug: req.body.slug
+            }
+        })
+
+        res.status(201).send({message: "Produto atualizdo com sucesso!"})
+    } 
+    
+    catch (e) 
+    {
+        res.status(400).send({message: "Falha ao atualizar produto!",error: e})
+    }
 };
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-exports.delete = (req, res, next) => {
-    let id = req.params.id;
-    res.status(200).send({ id: id, item: req.body });
+exports.delete = async (req, res, next) => 
+{
+    try 
+    {
+        await Product.findOneAndRemove(req.params.id)
+        res.status(201).send({message: "Produto excluído com sucesso!"})
+    } 
+    
+    catch (e) 
+    {
+        res.status(400).send({message: "Falha ao excluir produto!",error: e})
+    }
 };
 
 // ----------------------------------------------------------------------------

@@ -7,13 +7,13 @@ const schema = new Schema({
 
     title: {
         type: String,
-        required: true,
+        required: [true, 'O título é obrigatório'],
         trim: true
     },
 
     slug: {
         type: String,
-        required: true,
+        required: [true,'O slug é obrigatório'],
         trim: true,
         index: true,
         unique: true
@@ -21,13 +21,13 @@ const schema = new Schema({
 
     description: {
         type: String,
-        required: true,
+        required: [true, 'A descrição é obrigatória'],
         trim: true
     },
 
     price: {
         type: Number,
-        required: true
+        required: [true, 'O preço é obrigatório']
     },
 
     active: {
